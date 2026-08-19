@@ -1,0 +1,24 @@
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8001:8001"   # WebSocket + /metrics
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+  worker:
+    build: ./agent
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://postgres@postgres/eval
+    depends_on:
+      - redis
+      - postgres
+  redis:
+    image: redis:7-alpine
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=eval
+      - POSTGRES_HOST_AUTH_METHOD=trust
